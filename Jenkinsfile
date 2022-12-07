@@ -16,12 +16,32 @@ pipeline {
         NEXUS_LOGIN = "nexuslogin"
     }
 	
-    stages{
-        
+    stages {
         stage('BUILD'){
             steps {
                 sh 'mvn -s settings.xml -DskipTests install'
             }
+            post {
+                success {
+                    echo "Now Archiving."
+                    archiveArtifacts artifacts: '**/*.war'
+                }
+            }
         }
+        stage('UNIT TEST'){
+            steps {
+                sh 'mvn test'
+            }
+        }
+        stage ('CHECKSTYLE ANALYSIS'){
+            steps {
+                sh 'mvn checkstyle:checkstyle'
+            }
+            post {
+                success {
+                    echo 'Generated Analysis Result'
+                }
+            }
+        } 
     }
 }

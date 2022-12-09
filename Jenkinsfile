@@ -46,7 +46,7 @@ pipeline {
             }
             post {
                 def attachements = [
-                    text 'Generated Analysis Result.',
+                    text: 'Generated Analysis Result.',
                     fallback: 'Hey, your report is awesome!',
                     color: '#ff0000'
                 ]

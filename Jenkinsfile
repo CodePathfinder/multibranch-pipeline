@@ -1,3 +1,8 @@
+def COLOR_MAP = [
+    'SUCCESS': 'good', 
+    'FAILURE': 'danger',
+]
+
 pipeline {
 	agent any
 	tools {
@@ -40,8 +45,14 @@ pipeline {
                 sh 'mvn -s settings.xml checkstyle:checkstyle'
             }
             post {
+                def attachements = [
+                    text 'Generated Analysis Result.',
+                    fallback: 'Hey, your report is awesome!',
+                    color: '#ff0000'
+                ]
                 success {
                     echo 'Generated Analysis Result'
+                    slackSend (channel: "#someproject", attachments: attachments)
                 }
             }
         }
@@ -93,6 +104,15 @@ pipeline {
                     ]
                 )
             }
+        }
+        
+    }
+     post {
+        always {
+            echo 'Slack Notifications.'
+            slackSend channel: 'someproject',
+                color: COLOR_MAP[currentBuild.currentResult],
+                message: "*${currentBuild.currentResult}:* Job ${env.JOB_NAME} build ${env.BUILD_NUMBER} \n More info at: ${env.BUILD_URL}"
         }
     }
 }

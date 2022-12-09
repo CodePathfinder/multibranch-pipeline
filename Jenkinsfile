@@ -41,19 +41,19 @@ pipeline {
             }
         }
         stage ('CHECKSTYLE ANALYSIS'){
+            def attachements = [
+                [
+                    text: 'Generated Analysis Result.',
+                    fallback: 'Hey, your report is awesome!',
+                    color: '#ff0000'
+                ]
+            ]
+            
             steps {
                 sh 'mvn -s settings.xml checkstyle:checkstyle'
             }
             post {
-                
                 success {
-                    def attachements = [
-                        [
-                            text: 'Generated Analysis Result.',
-                            fallback: 'Hey, your report is awesome!',
-                            color: '#ff0000'
-                        ]
-                    ]
                     echo 'Generated Analysis Result'
                     slackSend (channel: "#someproject", attachments: attachments)
                 }

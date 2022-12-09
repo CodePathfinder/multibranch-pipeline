@@ -46,9 +46,12 @@ pipeline {
             }
             post {
                 def attachements = [
-                    text: 'Generated Analysis Result.',
-                    fallback: 'Hey, your report is awesome!',
-                    color: '#ff0000'
+                    [
+                        text: 'Generated Analysis Result.',
+                        fallback: 'Hey, your report is awesome!',
+                        color: '#ff0000'
+                    ]
+                    
                 ]
                 success {
                     echo 'Generated Analysis Result'

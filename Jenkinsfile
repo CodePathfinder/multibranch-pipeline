@@ -45,15 +45,15 @@ pipeline {
                 sh 'mvn -s settings.xml checkstyle:checkstyle'
             }
             post {
-                def attachements = [
-                    [
-                        text: 'Generated Analysis Result.',
-                        fallback: 'Hey, your report is awesome!',
-                        color: '#ff0000'
-                    ]
-                    
-                ]
+                
                 success {
+                    def attachements = [
+                        [
+                            text: 'Generated Analysis Result.',
+                            fallback: 'Hey, your report is awesome!',
+                            color: '#ff0000'
+                        ]
+                    ]
                     echo 'Generated Analysis Result'
                     slackSend (channel: "#someproject", attachments: attachments)
                 }

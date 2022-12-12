@@ -1,56 +1,42 @@
-def COLOR_MAP = [
-    'SUCCESS': 'good', 
-    'FAILURE': 'danger',
-]
-
 pipeline {
 	agent any
 	tools {
         maven "MAVEN3"
         jdk "OracleJDK8"
     }	
-    environment {
-        SNAP_REPO = "vprofile-snapshot"
-        NEXUS_USER = "admin"
-        NEXUS_PASS = "AsMuNexus2cpf"
-        RELEASE_REPO = "vprofile-release"
-        CENTRAL_REPO = "vpro-maven-central"
-        NEXUSIP = "172.31.0.209"
-        NEXUSPORT = "8081"
-	    NEXUS_GRP_REPO = "vpro-maven-group"
-        NEXUS_LOGIN = "nexuslogin"
+	environment {
         SONARSERVER = 'sonarserver'
         SONARSCANNER = 'sonarscanner'
+        REGISTRY_CREDENTIAL = 'dockerhub-creds'
+        APP_IMG_REPOSITORY = 'gamdckr/vproappimg'
+        IMAGE_REGISTRY = 'https://hub.docker.com/'
     }
-	
     stages {
-        stage('BUILD'){
+        stage('Git Checkout'){
+            steps{
+                git branch: 'ci-build-dockerhub',
+                credentialsId: 'githublogin',
+                url: 'git@github.com:CodePathfinder/vproject.git'
+            }
+    	}
+        stage('MVN BUILD'){
             steps {
-                sh 'mvn -s settings.xml -DskipTests install'
+                sh 'mvn -DskipTests install'
             }
             post {
                 success {
-                    echo "Now Archiving."
                     archiveArtifacts artifacts: '**/*.war'
                 }
             }
         }
         stage('UNIT TEST'){
             steps {
-                sh 'mvn -s settings.xml test'
+                sh 'mvn test'
             }
         }
         stage ('CHECKSTYLE ANALYSIS'){
             steps {
-                sh 'mvn -s settings.xml checkstyle:checkstyle'
-            }
-            post {
-                success {
-                    echo 'Generated Analysis Result'
-                    slackSend channel: "#someproject", 
-                    color: COLOR_MAP[currentBuild.currentResult], 
-                    message: "*${currentBuild.currentResult}:* Job ${env.JOB_NAME} build ${env.BUILD_NUMBER} \n Generated Analysis Result"
-                }
+                sh 'mvn checkstyle:checkstyle'
             }
         }
         stage('SONAR ANALYSIS') {
@@ -70,10 +56,6 @@ pipeline {
                     -Dsonar.jacoco.reportsPath=target/jacoco.exec \
                     -Dsonar.java.checkstyle.reportPaths=target/checkstyle-result.xml'''
                 }
-
-                timeout(time: 30, unit: 'MINUTES') {
-                    waitForQualityGate abortPipeline: true
-                }
             }
         }
         stage('QUALITY GATE') { 
@@ -83,33 +65,30 @@ pipeline {
                 }
             }
         }
-        stage("UploadArtifact"){
+        stage('BUILD IMAGE') {
             steps {
-                nexusArtifactUploader(
-                    nexusVersion: 'nexus3',
-                    protocol: 'http',
-                    nexusUrl: "${NEXUSIP}:${NEXUSPORT}",
-                    groupId: 'QA',
-                    version: "${env.BUILD_ID}-${env.BUILD_TIMESTAMP}",
-                    repository: "${RELEASE_REPO}",
-                    credentialsId: "${NEXUS_LOGIN}",
-                    artifacts: [
-                        [artifactId: 'vproapp',
-                        classifier: '',
-                        file: 'target/vprofile-v2.war',
-                        type: 'war']
-                    ]
-                )
+                script {
+                    dockerImage = docker.build(APP_IMG_REPOSITORY + ":$BUILD_NUMBER", "./Dockerfile")
+                }
             }
         }
-        
+        stage('PUSH IMAGE') {
+            steps{
+                script {
+                    docker.withRegistry(IMAGE_REGISTRY, REGISTRY_CREDENTIAL) {
+                        dockerImage.push("$BUILD_NUMBER")
+                        dockerImage.push('latest')
+                    }
+                }
+            }
+        }
     }
-     post {
-        always {
-            echo 'Slack Notifications.'
-            slackSend channel: 'someproject',
-                color: COLOR_MAP[currentBuild.currentResult],
-                message: "*${currentBuild.currentResult}:* Job ${env.JOB_NAME} build ${env.BUILD_NUMBER} \n More info at: ${env.BUILD_URL}"
+    post {
+        success {
+            emailext body: "Job ${env.JOB_NAME} build ${env.BUILD_NUMBER}\nSee detailed info at: ${env.BUILD_URL} or in the attached logfile", 
+                subject: 'Job Completion Notification',
+                to: 'gamolchanov@gmail.com',
+                attachLog: true
         }
     }
 }

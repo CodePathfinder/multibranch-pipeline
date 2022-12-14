@@ -1,5 +1,9 @@
 pipeline {
 	agent any
+	options {
+        buildDiscarder(logRotator(numToKeepStr: '5', artifactNumToKeepStr: '5'))
+        timestamps()
+    }
 	tools {
         maven "MAVEN3"
         jdk "OracleJDK8"
@@ -8,10 +12,16 @@ pipeline {
         SONARSERVER = 'sonarserver'
         SONARSCANNER = 'sonarscanner'
         REGISTRY_CREDENTIAL = 'dockerhub-creds'
-        APP_IMG_REPOSITORY = 'gamdckr/vproappimg'
-        IMAGE_REGISTRY = 'https://hub.docker.com/'
+        APP_IMG_NAME = 'gamdckr/vproappimg'
+        REGISTRY_URL = "https://index.docker.io/v1/"
     }
     stages {
+        stage('CLEAN WORKSPACE') {
+            steps {
+                echo 'Deleting workspace'
+                deleteDir()
+            }
+        }
         stage('Git Checkout'){
             steps{
                 git branch: 'ci-build-dockerhub',
@@ -68,18 +78,23 @@ pipeline {
         stage('BUILD IMAGE') {
             steps {
                 script {
-                    dockerImage = docker.build(APP_IMG_REPOSITORY + ":$BUILD_NUMBER", "./Dockerfile")
+                    dockerImage = docker.build(APP_IMG_NAME + ":$BUILD_NUMBER", "./")
                 }
             }
         }
         stage('PUSH IMAGE') {
             steps{
                 script {
-                    docker.withRegistry(IMAGE_REGISTRY, REGISTRY_CREDENTIAL) {
+                    withDockerRegistry(credentialsId: "$REGISTRY_CREDENTIAL", url: "$REGISTRY_URL") {
                         dockerImage.push("$BUILD_NUMBER")
                         dockerImage.push('latest')
                     }
                 }
+            }
+        }
+        stage('DELETE IMAGE LOCALLY') {
+            steps{
+                sh "docker rmi $APP_IMG_NAME:$BUILD_NUMBER"
             }
         }
     }

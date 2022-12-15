@@ -3,6 +3,7 @@ pipeline {
 	options {
         buildDiscarder(logRotator(numToKeepStr: '5', artifactNumToKeepStr: '5'))
         timestamps()
+        skipDefaultCheckout()
     }
 	tools {
         maven "MAVEN3"
@@ -22,6 +23,11 @@ pipeline {
                 deleteDir()
             }
         }
+        stage('Git Checkout'){
+            steps{
+                checkout scm
+            }
+    	}
         stage('MVN BUILD'){
             steps {
                 sh 'mvn -DskipTests install'

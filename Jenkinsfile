@@ -23,7 +23,7 @@ pipeline {
                 deleteDir()
             }
         }
-        stage('Git Checkout'){
+        stage('GIT CHECKOUT'){
             steps{
                 checkout scm
             }

@@ -22,13 +22,6 @@ pipeline {
                 deleteDir()
             }
         }
-        stage('Git Checkout'){
-            steps{
-                git branch: 'ci-build-dockerhub',
-                credentialsId: 'githublogin',
-                url: 'git@github.com:CodePathfinder/vproject.git'
-            }
-    	}
         stage('MVN BUILD'){
             steps {
                 sh 'mvn -DskipTests install'

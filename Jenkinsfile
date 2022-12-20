@@ -21,6 +21,7 @@ pipeline {
         stage('GIT CHECKOUT'){
             steps{
                 checkout scm
+                git log -1 --pretty=%s
             }
     	}
         stage('MVN BUILD'){

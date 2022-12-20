@@ -60,7 +60,7 @@ pipeline {
         }
         stage('BUILD IMAGE') {
             steps {
-                dockerImage = docker.build('vproimg' + ":$BUILD_NUMBER", "./")
+                sh 'docker build -t gamdckr/vproimg:$BUILD_NUMBER'
                 echo 'Create dockerimage'
             }
         }

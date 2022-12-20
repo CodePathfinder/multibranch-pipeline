@@ -1,5 +1,7 @@
 pipeline {
-	agent any
+	agent {
+        label 'master'
+    }
 	options {
         buildDiscarder(logRotator(numToKeepStr: '5', artifactNumToKeepStr: '5'))
         timestamps()
@@ -24,6 +26,7 @@ pipeline {
         stage('MVN BUILD'){
             steps {
                 sh 'mvn -DskipTests install'
+                echo 'Create artifact .war'
             }
             post {
                 success {
@@ -34,14 +37,31 @@ pipeline {
         stage('UNIT TEST'){
             steps {
                 sh 'mvn test'
+                echo 'Unittests are run'
             }
         }
- 
+        stage('FOR FEATURE BRANCH ONLY'){
+            when { 
+                branch 'feature-*'
+            }
+            steps {
+                sh '''
+                cat README.md
+                '''                
+            }
+        }
+        stage('FOR THE PR'){
+            when { 
+                branch 'PR-*'
+            }
+            steps {
+                echo 'This only runs for the PR' 
+            }
+        }
         stage('BUILD IMAGE') {
             steps {
-                script {
-                    dockerImage = docker.build(APP_IMG_NAME + ":$BUILD_NUMBER", "./")
-                }
+                dockerImage = docker.build('vproimg' + ":$BUILD_NUMBER", "./")
+                echo 'Create dockerimage'
             }
         }
     }

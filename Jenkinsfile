@@ -40,7 +40,7 @@ pipeline {
         stage('BUILD IMAGE') {
             steps {
                 script {
-                    dockerImage = docker.build(APP_IMG_NAME + ":$BUILD_NUMBER", "./")
+                    dockerImage = docker.build('vproimg' + ":$BUILD_NUMBER", "./")
                 }
             }
         }

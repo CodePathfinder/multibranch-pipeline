@@ -23,7 +23,6 @@ pipeline {
                 checkout scm
             }
     	}
-
         stage('CHECK COMMIT MESSAGE'){
             steps{
                 sh '''
@@ -32,25 +31,7 @@ pipeline {
                 '''
             }
     	}
-        
-        stage('MVN BUILD'){
-            steps {
-                sh 'mvn -DskipTests install'
-                echo 'Create artifact .war'
-            }
-            post {
-                success {
-                    archiveArtifacts artifacts: '**/*.war'
-                }
-            }
-        }
-        stage('UNIT TEST'){
-            steps {
-                sh 'mvn test'
-                echo 'Unittests are run'
-            }
-        }
-        stage('FOR FEATURE BRANCH ONLY'){
+        stage('For feature branches'){
             when { 
                 branch 'feature-*'
             }
@@ -60,18 +41,12 @@ pipeline {
                 '''                
             }
         }
-        stage('FOR THE PR'){
+        stage('For dev branch'){
             when { 
-                branch 'PR-*'
+                branch 'dev'
             }
             steps {
                 echo 'This only runs for the PR' 
-            }
-        }
-        stage('BUILD IMAGE') {
-            steps {
-                sh 'docker build -t gamdckr/vproimg:$BUILD_NUMBER .'
-                echo 'Create dockerimage'
             }
         }
     }

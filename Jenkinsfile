@@ -21,9 +21,16 @@ pipeline {
         stage('GIT CHECKOUT'){
             steps{
                 checkout scm
-                sh 'git log -1 --pretty=%s'
             }
     	}
+
+        stage('CHECK COMMIT MESSAGE'){
+            steps{
+                sh 'msg=$(git log -1 --pretty=%s)'
+                echo '$msg'
+            }
+    	}
+        
         stage('MVN BUILD'){
             steps {
                 sh 'mvn -DskipTests install'

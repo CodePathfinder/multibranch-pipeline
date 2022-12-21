@@ -27,7 +27,7 @@ pipeline {
         stage('CHECK COMMIT MESSAGE'){
             steps{
                 sh 'msg=$(git log -1 --pretty=%s)'
-                echo '$msg'
+                echo "$msg"
             }
     	}
         

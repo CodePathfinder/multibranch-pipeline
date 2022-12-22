@@ -23,14 +23,21 @@ pipeline {
                 checkout scm
             }
     	}
-        stage('CHECK COMMIT MESSAGE'){
-            steps{
+        stage('Test commit message') {
+            steps {
                 sh '''
-                msg=$(git log -1 --pretty=%s) 
-                echo $msg
+                    msg=$(git log -1 --pretty=%s)
+                    count=$(echo $msg | sed -n '/^[A-Z]{1,5}-[0-9]{1,5} /p' | sed 's/ //g' | wc -c)
+                    if [ "$count" -ge "10" -a "$count" -le "72" ]; then
+                        echo "Commit message looks fine!"
+                        exit 0
+                    else
+                        echo "Commit message does not comply with the following format: <ticket><space><message>, where ticket shall consist of 1 to 5 CAPITAL_LETTERS, then '-', then 1 to 5 digits. The total message length shall be between 10 and 72 symbols excluding spaces."
+                        exit 1
+                    fi
                 '''
             }
-    	}
+        }
         stage('For feature branches'){
             when { 
                 branch 'feature-*'

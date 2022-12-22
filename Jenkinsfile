@@ -23,7 +23,7 @@ pipeline {
                 checkout scm
             }
     	}
-        stage('Test commit message') {
+        stage('Test commit message'){
             steps {
                 sh '''msg=$(git log -1 --pretty=%s)
                     count=$(echo $msg | sed -n \'/^[A-Z]\\{1,5\\}-[0-9]\\{1,5\\} /p\' | sed \'s/ //g\' | wc -c)

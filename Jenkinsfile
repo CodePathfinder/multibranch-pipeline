@@ -25,7 +25,7 @@ pipeline {
     	}
         stage('Test commit message') {
             steps {
-                sh ''' msg=$(git log -1 --pretty=%s)
+                sh '''msg=$(git log -1 --pretty=%s)
                     count=$(echo $msg | sed -n \'/^[A-Z]\\{1,5\\}-[0-9]\\{1,5\\} /p\' | sed \'s/ //g\' | wc -c)
                     if [ "$count" -ge "10" -a "$count" -le "72" ]; then
                         echo "Commit message looks fine!"

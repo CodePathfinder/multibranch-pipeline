@@ -1,4 +1,4 @@
-FROM tomcat:8-jre11
+FROM tomcat
 LABEL "Project"="Vprofile"
 
 RUN rm -rf /usr/local/tomcat/webapps/*

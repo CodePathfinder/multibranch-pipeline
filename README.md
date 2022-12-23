@@ -7,3 +7,4 @@ TEST-004 Test GitHub API integration with Jenkins: POST method + curl function i
 TEST-005 Test GitHub API integration with Jenkins: POST method + curl
 TEST-006 Test GitHub API integration with Jenkins: POST method + curl
 TEST-007 Test GitHub API integration with Jenkins
+TEST-008 Test GitHub API integration with Jenkins

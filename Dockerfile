@@ -1,5 +1,4 @@
 FROM tomcat:8-jre11
-# hadolint ignore=DL3048
 LABEL "Project"="Vprofile"
 
 RUN rm -rf /usr/local/tomcat/webapps/*

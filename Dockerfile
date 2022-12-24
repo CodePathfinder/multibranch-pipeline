@@ -1,3 +1,4 @@
+# hadolint ignore=DL3048
 FROM tomcat:8-jre11
 LABEL "Project"="Vprofile"
 

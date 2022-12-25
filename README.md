@@ -1,30 +1,17 @@
-#### Test
+##### Test
 
-### Prerequisites
-
-- JDK 1.8 or later
-- Maven 3 or later
-- MySQL 5.6 or later
-
-### Technologies
-
-- Spring MVC
-- Spring Security
-- Spring Data JPA
-- Maven
-- JSP
-- MySQL
-
-### Database
-
-Here,we used Mysql DB
-MSQL DB Installation Steps for Linux ubuntu 14.04:
-
-- $ sudo apt-get update
-- $ sudo apt-get install mysql-server
-
-Then look for the file :
-
-- /src/main/resources/accountsdb
-- accountsdb.sql file is a mysql dump file.we have to import this dump to mysql db server
-- > mysql -u <user_name> -p accounts < accountsdb.sql
+TEST-001 Test GitHub API integration with Jenkins: GET method
+TEST-002 Test GitHub API integration with Jenkins: POST method
+TEST-003 Test GitHub API integration with Jenkins: POST method + curl function in pipeline
+TEST-004 Test GitHub API integration with Jenkins: POST method + curl function in pipeline
+TEST-005 Test GitHub API integration with Jenkins: POST method + curl
+TEST-006 Test GitHub API integration with Jenkins: POST method + curl
+TEST-007 Test GitHub API integration with Jenkins
+TEST-008 Test GitHub API integration with Jenkins
+TEST-009 Test GitHub API integration with Jenkins
+TEST-010 Test GitHub API integration with Jenkins
+TEST-011 Test GitHub API integration with Jenkins
+TEST-012 Test GitHub API integration with Jenkins
+TEST-013 Test GitHub API integration with Jenkins
+TEST-014 Test GitHub API integration with Jenkins
+TEST-021 Lint Dockerfile

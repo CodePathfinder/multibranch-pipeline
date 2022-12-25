@@ -1,3 +1,8 @@
+// Multi-branch pipeline (multibranch-pipeline-task2) with is triggered by manual scanning or automatically upon push
+// of new commits to any branch in repository CodePathfinder/multibranch-pipeline [github webhook (push)].
+// It can also track the newly created or deleted branches, check and deal with pull requests (PR), send check statuses
+// to GitHub through GitHub API using github 'personal access token'
+
 void setBuildStatus(String state, String message, String context) {
     withCredentials([string(credentialsId: 'github-commit-status-token', variable: 'TOKEN')]) {
         env.state="$state"
@@ -32,7 +37,7 @@ pipeline {
     stages {
         stage('CLEAN WORKSPACE') {
             steps {
-                echo '================================== Deleting workspace =================================='
+                echo '========================= Deleting workspace ========================='
                 deleteDir()
             }
         }
@@ -42,9 +47,14 @@ pipeline {
             }
         }
         stage('Test commit message') {
+            when {
+                not {
+                    branch "main"
+                }
+            }
             steps {
                 script {
-                    echo '================================== Test commit message =================================='
+                    echo '========== Test commit message for branches other then main ============'
                     sh '''
                     SHA=$(git log -1 --pretty=%H)
                     COMMIT_MESSAGE=$(git log -1 --pretty=%s)
@@ -62,11 +72,11 @@ pipeline {
         }
         stage ("Lint dockerfile") {
             steps {
-                echo '================================== Lint dockerfile =================================='
+                echo '=========================  Lint dockerfile ========================='
                 sh '''
                 docker run --rm -i ghcr.io/hadolint/hadolint < Dockerfile | tee -a hadolint_lint.txt
                 count=$(cat hadolint_lint.txt | grep -v style | wc -l)
-                if [ "$count" -ge "1" ]; then 
+                if [ "$count" -ge "1" ]; then
                     echo "Check hadolint_lint.txt and correct your Dockerfile"
                     exit 2
                 fi
@@ -78,32 +88,13 @@ pipeline {
                 }
             }
         }
-        stage('For feature branches'){
-            when { 
-                branch 'feature-*'
-            }
-            steps {
-                echo '======================== For feature branches stage ======================='
-                sh '''
-                cat README.md
-                '''                
-            }
-        }
-        stage('For the PR'){
-            when { 
-                branch 'PR-*'
-            }
-            steps {
-                echo '======================== This only runs for the PR =======================' 
-            }
-        }
     }
     post {
         success {
-            setBuildStatus('success', 'The build succeeded!', 'continuous-integration/jenkins'); 
+            setBuildStatus('success', 'The build succeeded!', 'continuous-integration/jenkins');
         }
         failure {
-            setBuildStatus('failure', 'The build failed!', 'continuous-integration/jenkins'); 
+            setBuildStatus('failure', 'The build failed!', 'continuous-integration/jenkins');
         }
     }
 }

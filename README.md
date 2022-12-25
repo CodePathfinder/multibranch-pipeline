@@ -1,4 +1,3 @@
-
 ##### Test
 
 TEST-001 Test GitHub API integration with Jenkins: GET method
@@ -15,4 +14,5 @@ TEST-011 Test GitHub API integration with Jenkins
 TEST-012 Test GitHub API integration with Jenkins
 TEST-013 Test GitHub API integration with Jenkins
 TEST-014 Test GitHub API integration with Jenkins
+TEST-021 Lint Dockerfile
 TEST-030 Multibrunch-pipeline
